@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Исключаем папку сборщика Maven (там весь скомпилированный мусор)
+/target/
+
+# Исключаем настройки самой IntelliJ IDEA
+.idea/
+*.iml
+
+# Исключаем конфигурационный файл с паролями и настройками базы
+/src/main/resources/application.properties
