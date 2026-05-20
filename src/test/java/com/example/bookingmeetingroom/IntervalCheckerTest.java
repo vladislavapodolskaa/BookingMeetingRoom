@@ -1,23 +1,23 @@
 package com.example.bookingmeetingroom;
-import com.example.bookingmeetingroom.Service.IntervalChecker;
+import com.example.bookingmeetingroom.domain.BookingInterval;
+import com.example.bookingmeetingroom.service.IntervalChecker;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class IntervalCheckerTest {
+class IntervalCheckerTest {
     @Test
     void shouldReturnFalseWhenIntervalsNotIntersect() {
         LocalDateTime start1 = LocalDateTime.of(2026, 5, 18, 10, 0);
         LocalDateTime end1 = LocalDateTime.of(2026, 5, 18, 12, 0);
+        BookingInterval dateFirst = new BookingInterval(start1, end1);
 
         LocalDateTime start2 = LocalDateTime.of(2026, 5, 18, 12, 30);
         LocalDateTime end2 = LocalDateTime.of(2026, 5, 18, 13, 0);
-
-        IntervalChecker checker = new IntervalChecker(start1, end1, start2, end2);
-
-        boolean result = checker.isIntervalsIntersect();
+        BookingInterval dateSecond = new BookingInterval(start2, end2);
+        boolean result = IntervalChecker.intervalCheck(dateFirst, dateSecond);
 
         assertFalse(result, "Интервалы не должны пересекаться");
     }
@@ -25,13 +25,13 @@ public class IntervalCheckerTest {
     void shouldReturnFalseWhenIntervalsBorder() {
         LocalDateTime start1 = LocalDateTime.of(2026, 5, 18, 10, 0);
         LocalDateTime end1 = LocalDateTime.of(2026, 5, 18, 12, 0);
+        BookingInterval dateFirst = new BookingInterval(start1, end1);
 
         LocalDateTime start2 = LocalDateTime.of(2026, 5, 18, 12, 0);
         LocalDateTime end2 = LocalDateTime.of(2026, 5, 18, 15, 0);
+        BookingInterval dateSecond = new BookingInterval(start2, end2);
 
-        IntervalChecker checker = new IntervalChecker(start1, end1, start2, end2);
-
-        boolean result = checker.isIntervalsIntersect();
+        boolean result = IntervalChecker.intervalCheck(dateFirst, dateSecond);
 
         assertFalse(result, "Интервалы не должны пересекаться");
     }
@@ -39,13 +39,13 @@ public class IntervalCheckerTest {
     void shouldReturnTrueWhenIntervalsIntersect() {
         LocalDateTime start1 = LocalDateTime.of(2026, 5, 18, 10, 0);
         LocalDateTime end1 = LocalDateTime.of(2026, 5, 18, 12, 0);
+        BookingInterval dateFirst = new BookingInterval(start1, end1);
 
         LocalDateTime start2 = LocalDateTime.of(2026, 5, 18, 9, 0);
         LocalDateTime end2 = LocalDateTime.of(2026, 5, 18, 11, 0);
+        BookingInterval dateSecond = new BookingInterval(start2, end2);
 
-        IntervalChecker checker = new IntervalChecker(start1, end1, start2, end2);
-
-        boolean result = checker.isIntervalsIntersect();
+        boolean result = IntervalChecker.intervalCheck(dateFirst, dateSecond);
 
         assertTrue(result, "Интервалы [10-12] и [11-13] должны пересекаться");
     }
@@ -53,18 +53,10 @@ public class IntervalCheckerTest {
     void shouldReturnExeptionWhenInvertedInterval(){
         LocalDateTime start1 = LocalDateTime.of(2026, 5, 18, 12, 0);
         LocalDateTime end1 = LocalDateTime.of(2026, 5, 18, 10, 0);
-
-        LocalDateTime start2 = LocalDateTime.of(2026, 5, 18, 11, 0);
-        LocalDateTime end2 = LocalDateTime.of(2026, 5, 18, 13, 0);
-
-        IntervalChecker checker = new IntervalChecker(start1, end1, start2, end2);
-
-
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            checker.isIntervalsIntersect();
+            new BookingInterval(start1, end1);
         });
-
-        assertEquals("End date is before start date at the first date", exception.getMessage());
+        assertEquals("End date is before start date", exception.getMessage());
     }
 
     @Test
@@ -72,16 +64,10 @@ public class IntervalCheckerTest {
         LocalDateTime start1 = LocalDateTime.of(2026, 5, 18, 12, 0);
         LocalDateTime end1 = LocalDateTime.of(2026, 5, 18, 12, 0);
 
-        LocalDateTime start2 = LocalDateTime.of(2026, 5, 18, 11, 0);
-        LocalDateTime end2 = LocalDateTime.of(2026, 5, 18, 13, 0);
-
-        IntervalChecker checker = new IntervalChecker(start1, end1, start2, end2);
-
-
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            checker.isIntervalsIntersect();
+            new BookingInterval(start1, end1);
         });
 
-        assertEquals("End date is equal start date at the first date", exception.getMessage());
+        assertEquals("End date is equal start date", exception.getMessage());
     }
 }
