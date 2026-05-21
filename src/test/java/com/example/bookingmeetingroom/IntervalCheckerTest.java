@@ -53,9 +53,8 @@ class IntervalCheckerTest {
     void shouldReturnExeptionWhenInvertedInterval(){
         LocalDateTime start1 = LocalDateTime.of(2026, 5, 18, 12, 0);
         LocalDateTime end1 = LocalDateTime.of(2026, 5, 18, 10, 0);
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            new BookingInterval(start1, end1);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new BookingInterval(start1, end1));
         assertEquals("End date is before start date", exception.getMessage());
     }
 
@@ -64,9 +63,7 @@ class IntervalCheckerTest {
         LocalDateTime start1 = LocalDateTime.of(2026, 5, 18, 12, 0);
         LocalDateTime end1 = LocalDateTime.of(2026, 5, 18, 12, 0);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            new BookingInterval(start1, end1);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new BookingInterval(start1, end1));
 
         assertEquals("End date is equal start date", exception.getMessage());
     }

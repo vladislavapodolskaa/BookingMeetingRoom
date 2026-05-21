@@ -1,13 +1,12 @@
-package com.example.bookingmeetingroom.Service;
+package com.example.bookingmeetingroom.service;
 
-import com.example.bookingmeetingroom.Domain.Room;
-import com.example.bookingmeetingroom.Entity.RoomEntity;
-import com.example.bookingmeetingroom.Repository.RoomRepository;
+import com.example.bookingmeetingroom.domain.Room;
+import com.example.bookingmeetingroom.entity.RoomEntity;
+import com.example.bookingmeetingroom.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 public class RoomService {
@@ -18,7 +17,7 @@ public class RoomService {
     }
 
     public List<Room> getAllRoom(){
-        return roomRepository.findAll().stream().map(it -> toRoom(it)).toList();
+        return roomRepository.findAll().stream().map(this::toRoom).toList();
     }
     private Room toRoom(RoomEntity roomEntity){
         return new Room(roomEntity.getId(),
@@ -27,7 +26,7 @@ public class RoomService {
     }
 
     public Room getRoomById(Long id) {
-        return roomRepository.findById(id).map(it -> toRoom(it))
+        return roomRepository.findById(id).map(this::toRoom)
                         .orElseThrow(() -> new NoSuchElementException("Room not exist by id = " + id));
     }
 

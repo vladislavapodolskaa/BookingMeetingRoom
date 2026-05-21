@@ -1,13 +1,12 @@
-package com.example.bookingmeetingroom.Controller;
+package com.example.bookingmeetingroom.controller;
 
-import com.example.bookingmeetingroom.Domain.Room;
-import com.example.bookingmeetingroom.Service.RoomService;
+import com.example.bookingmeetingroom.domain.Room;
+import com.example.bookingmeetingroom.service.RoomService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/room")

@@ -1,4 +1,4 @@
-package com.example.bookingmeetingroom.Entity;
+package com.example.bookingmeetingroom.entity;
 
 import jakarta.persistence.*;
 
