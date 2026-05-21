@@ -32,13 +32,14 @@ public class UserController {
         userService.deleteUserById(id);
         return ResponseEntity.ok().build();
     }
+    //FIXME room
     @PostMapping()
     public ResponseEntity<User> createRoom(@RequestBody User user){
         return  ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUserById(@PathVariable Long id, @RequestBody User user){
-        return ResponseEntity.ok(userService.updateUserById(id, user));
+    @PutMapping()
+    public ResponseEntity<User> updateUserById(@RequestBody User user){
+        return ResponseEntity.ok(userService.updateUserById(user));
     }
 
 }
