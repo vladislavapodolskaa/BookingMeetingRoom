@@ -10,6 +10,8 @@ import com.example.bookingmeetingroom.entity.UserEntity;
 import com.example.bookingmeetingroom.repository.BookingRepository;
 import com.example.bookingmeetingroom.repository.RoomRepository;
 import com.example.bookingmeetingroom.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
+    private final Logger logger = LoggerFactory.getLogger(BookingService.class);
 
     @Autowired
     public BookingService(BookingRepository bookingRepository, UserRepository userRepository, RoomRepository roomRepository) {
@@ -37,8 +40,12 @@ public class BookingService {
 
     public void cancelBookingById(Long id) {
         BookingEntity bookingEntity = bookingRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
+        if (bookingEntity.getStatus().equals(BookingStatus.CANCELLED)){
+            throw new IllegalStateException("Can't cancel already cancelled booking id = " + id);
+        }
         bookingEntity.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(bookingEntity);
+        logger.info("Booking id = {} successfully cancelled", id);
     }
 
     public Booking createBooking(Booking booking) {
@@ -47,6 +54,9 @@ public class BookingService {
         }
         if (booking.status() != null){
             throw new IllegalArgumentException("Status should be null");
+        }
+        if (booking.startTime().isBefore(java.time.LocalDateTime.now())) {
+            throw new IllegalArgumentException("Start date can't be in the past");
         }
         BookingInterval interval = new BookingInterval(booking.startTime(), booking.endTime());
 
@@ -73,13 +83,14 @@ public class BookingService {
                 booking.topicOfMeeting()
                 );
         bookingRepository.save(bookingEntity);
+        logger.info("Booking successfully created");
         return toBooking(bookingEntity);
     }
 
     public Booking updateBookingById(Long id, Booking booking){
         BookingEntity bookingEntity = bookingRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
         if (bookingEntity.getStatus().equals(BookingStatus.CANCELLED)){
-            throw new IllegalArgumentException("Can't update cancelled booking id = " + id);
+            throw new IllegalStateException("Can't update cancelled booking id = " + id);
         }
         if (booking.id() != null){
             throw new IllegalArgumentException("Id should be null");
@@ -113,6 +124,7 @@ public class BookingService {
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
+        logger.info("Booking id = {} successfully updated", id);
         return toBooking(bookingEntity);
     }
 

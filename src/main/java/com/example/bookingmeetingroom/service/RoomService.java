@@ -3,6 +3,8 @@ package com.example.bookingmeetingroom.service;
 import com.example.bookingmeetingroom.domain.Room;
 import com.example.bookingmeetingroom.entity.RoomEntity;
 import com.example.bookingmeetingroom.repository.RoomRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.NoSuchElementException;
 @Service
 public class RoomService {
     private final RoomRepository roomRepository;
+    private final Logger logger = LoggerFactory.getLogger(RoomService.class);
 
     public RoomService(RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
@@ -35,6 +38,7 @@ public class RoomService {
             throw new NoSuchElementException("Room not exist by id = " + id);
         }
         roomRepository.deleteById(id);
+        logger.info("Room with id = {} successfully deleted", id);
     }
 
     public Room createRoom(Room room) {
@@ -46,6 +50,7 @@ public class RoomService {
                 room.name(),
                 room.capacity());
         roomRepository.save(roomEntity);
+        logger.info("Room successfully created");
         return toRoom(roomEntity);
     }
     public Room updateRoomById(Long id, Room room){
@@ -61,6 +66,7 @@ public class RoomService {
                 room.name(),
                 room.capacity());
         roomRepository.save(roomEntity);
+        logger.info("Room with id = {} successfully updated", id);
         return toRoom(roomEntity);
     }
 }
