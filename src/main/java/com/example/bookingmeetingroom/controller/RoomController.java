@@ -1,6 +1,8 @@
 package com.example.bookingmeetingroom.controller;
 
+import com.example.bookingmeetingroom.domain.BookingAudit;
 import com.example.bookingmeetingroom.domain.Room;
+import com.example.bookingmeetingroom.service.BookingAuditService;
 import com.example.bookingmeetingroom.service.RoomService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +16,12 @@ import java.util.List;
 @RequestMapping("/room")
 public class RoomController {
     private final RoomService roomService;
+    private final BookingAuditService bookingAuditService;
     private final Logger logger = LoggerFactory.getLogger(RoomController.class);
 
-    public RoomController(RoomService roomService) {
+    public RoomController(RoomService roomService, BookingAuditService bookingAuditService) {
         this.roomService = roomService;
+        this.bookingAuditService = bookingAuditService;
     }
     @GetMapping()
     public ResponseEntity<List<Room>> getAllRoom(){
@@ -43,5 +47,9 @@ public class RoomController {
     public ResponseEntity<Room> updateRoomById(@PathVariable Long id, @RequestBody Room room){
         logger.info("Request to update Room with id = {}", id);
         return ResponseEntity.ok(roomService.updateRoomById(id, room));
+    }
+    @GetMapping("/{id}/audit")
+    public ResponseEntity<List<BookingAudit>> getBookingAuditsByRoomId(@PathVariable Long id){
+        return ResponseEntity.ok(bookingAuditService.getBookingAuditsByRoomId(id));
     }
 }

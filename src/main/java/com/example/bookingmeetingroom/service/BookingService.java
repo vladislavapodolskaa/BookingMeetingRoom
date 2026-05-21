@@ -24,13 +24,15 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
+    private final BookingAuditService bookingAuditService;
     private final Logger logger = LoggerFactory.getLogger(BookingService.class);
 
     @Autowired
-    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, RoomRepository roomRepository) {
+    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, RoomRepository roomRepository, BookingAuditService bookingAuditService) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
+        this.bookingAuditService = bookingAuditService;
     }
 
     public Booking getBookingById(Long id) {
@@ -38,13 +40,14 @@ public class BookingService {
                 .orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
     }
 
-    public void cancelBookingById(Long id) {
+    public void cancelBookingById(Long id, Long userId) {
         BookingEntity bookingEntity = bookingRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
         if (bookingEntity.getStatus().equals(BookingStatus.CANCELLED)){
             throw new IllegalStateException("Can't cancel already cancelled booking id = " + id);
         }
         bookingEntity.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(bookingEntity);
+        bookingAuditService.cancelBookingAudit(userId, bookingEntity);
         logger.info("Booking id = {} successfully cancelled", id);
     }
 
@@ -83,6 +86,7 @@ public class BookingService {
                 booking.topicOfMeeting()
                 );
         bookingRepository.save(bookingEntity);
+        bookingAuditService.createBookingAudit(bookingEntity);
         logger.info("Booking successfully created");
         return toBooking(bookingEntity);
     }
@@ -124,6 +128,7 @@ public class BookingService {
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
+        bookingAuditService.updateBookingAudit(bookingEntity);
         logger.info("Booking id = {} successfully updated", id);
         return toBooking(bookingEntity);
     }
