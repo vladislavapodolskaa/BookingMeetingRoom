@@ -8,6 +8,6 @@ public class IntervalChecker {
     }
 
     public static boolean intervalCheck(BookingInterval dateFirst, BookingInterval dateSecond) {
-        return dateSecond.getEndTime().isAfter(dateFirst.getStartTime()) && dateSecond.getStartTime().isBefore(dateFirst.getEndTime());
+        return dateSecond.endTime().isAfter(dateFirst.startTime()) && dateSecond.startTime().isBefore(dateFirst.endTime());
     }
 }

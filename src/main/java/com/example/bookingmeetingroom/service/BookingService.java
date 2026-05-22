@@ -2,7 +2,6 @@ package com.example.bookingmeetingroom.service;
 
 
 import com.example.bookingmeetingroom.domain.Booking;
-import com.example.bookingmeetingroom.domain.BookingInterval;
 import com.example.bookingmeetingroom.domain.BookingStatus;
 import com.example.bookingmeetingroom.entity.BookingEntity;
 import com.example.bookingmeetingroom.entity.RoomEntity;
@@ -10,7 +9,6 @@ import com.example.bookingmeetingroom.entity.UserEntity;
 import com.example.bookingmeetingroom.repository.BookingRepository;
 import com.example.bookingmeetingroom.repository.RoomRepository;
 import com.example.bookingmeetingroom.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,8 +21,6 @@ public class BookingService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
 
-    // FIXME
-    @Autowired
     public BookingService(BookingRepository bookingRepository, UserRepository userRepository, RoomRepository roomRepository) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
@@ -43,73 +39,69 @@ public class BookingService {
     }
 
     public Booking createBooking(Booking booking) {
-        if (booking.id() != null){
-            throw new IllegalArgumentException("Id should be null");
-        }
-        if (booking.status() != null){
-            throw new IllegalArgumentException("Status should be null");
-        }
-        BookingInterval interval = new BookingInterval(booking.startTime(), booking.endTime());
+        validateBooking(booking);
 
         UserEntity user = userRepository.findById(booking.userId())
-                .orElseThrow(()-> new NoSuchElementException("User not exist by id = " + booking.userId()));
+                .orElseThrow(() -> new NoSuchElementException("User not exist by id = " + booking.userId()));
 
         RoomEntity room = roomRepository.findById(booking.roomId())
                 .orElseThrow(() -> new NoSuchElementException("Room not exist by id = " + booking.roomId()));
 
         boolean hasOverlap = bookingRepository.findAllByRoomAndStatus(room, BookingStatus.CONFIRMED).stream()
-                .anyMatch(it -> IntervalChecker.intervalCheck(new BookingInterval(it.getStartTime(), it.getEndTime()), interval));
+                .anyMatch(it -> IntervalChecker.intervalCheck(it.getBookingInterval(), booking.bookingInterval()));
 
-         if (hasOverlap){
-             throw new IllegalStateException("The room is already booked for this time interval.");
-         }
+        if (hasOverlap) {
+            throw new IllegalStateException("The room is already booked for this time interval.");
+        }
 
         BookingEntity bookingEntity = new BookingEntity(
                 null,
                 user,
                 room,
-                booking.startTime(),
-                booking.endTime(),
+                booking.bookingInterval(),
                 BookingStatus.CONFIRMED,
                 booking.topicOfMeeting()
-                );
+        );
         bookingRepository.save(bookingEntity);
         return toBooking(bookingEntity);
     }
 
-    public Booking updateBookingById(Long id, Booking booking){
-        BookingEntity bookingEntity = bookingRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
-        if (bookingEntity.getStatus().equals(BookingStatus.CANCELLED)){
-            throw new IllegalArgumentException("Can't update cancelled booking id = " + id);
+    public Booking updateBookingById(Booking booking) {
+        if (booking.id() == null) {
+            throw new IllegalArgumentException("Id can't be null");
         }
-        if (booking.id() != null){
-            throw new IllegalArgumentException("Id should be null");
+
+        validateBooking(booking);
+
+        BookingEntity bookingEntity = bookingRepository.findById(booking.id()).orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + booking.id()));
+
+        if (bookingEntity.getStatus().equals(BookingStatus.CANCELLED)) {
+            throw new IllegalArgumentException("Can't update cancelled booking id = " + booking.id());
         }
-        if (booking.status() != null){
+
+        if (booking.status() != null) {
             throw new IllegalArgumentException("Status should be null");
         }
-        BookingInterval interval = new BookingInterval(booking.startTime(), booking.endTime());
 
         UserEntity user = userRepository.findById(booking.userId())
-                .orElseThrow(()-> new NoSuchElementException("User not exist by id = " + booking.userId()));
+                .orElseThrow(() -> new NoSuchElementException("User not exist by id = " + booking.userId()));
 
         RoomEntity room = roomRepository.findById(booking.roomId())
                 .orElseThrow(() -> new NoSuchElementException("Room not exist by id = " + booking.roomId()));
 
         boolean hasOverlap = bookingRepository.findAllByRoomAndStatus(room, BookingStatus.CONFIRMED).stream()
-                .filter(it -> !it.getId().equals(id))
-                .anyMatch(it -> IntervalChecker.intervalCheck(new BookingInterval(it.getStartTime(), it.getEndTime()), interval));
+                .filter(it -> !it.getId().equals(booking.id()))
+                .anyMatch(it -> IntervalChecker.intervalCheck(booking.bookingInterval(), it.getBookingInterval()));
 
-        if (hasOverlap){
+        if (hasOverlap) {
             throw new IllegalStateException("The room is already booked for this time interval.");
         }
 
         bookingEntity = new BookingEntity(
-                id,
+                booking.id(),
                 user,
                 room,
-                booking.startTime(),
-                booking.endTime(),
+                booking.bookingInterval(),
                 BookingStatus.CONFIRMED,
                 booking.topicOfMeeting()
         );
@@ -117,23 +109,32 @@ public class BookingService {
         return toBooking(bookingEntity);
     }
 
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll().stream()
+                .map(this::toBooking)
+                .toList();
+    }
 
-    private Booking toBooking(BookingEntity bookingEntity){
+    private Booking toBooking(BookingEntity bookingEntity) {
         return new Booking(
                 bookingEntity.getId(),
                 bookingEntity.getUser().getId(),
                 bookingEntity.getRoom().getId(),
-                bookingEntity.getStartTime(),
-                bookingEntity.getEndTime(),
+                bookingEntity.getBookingInterval(),
                 bookingEntity.getStatus(),
                 bookingEntity.getTopicOfMeeting()
         );
     }
 
-    //FIXME
-    public List<Booking> getAllBooking() {
-        return bookingRepository.findAll().stream()
-                .map(this::toBooking)
-                .toList();
+    private void validateBooking(Booking booking) {
+        if (booking.status() != null) {
+            throw new IllegalArgumentException("Status should be null");
+        }
+        if (booking.bookingInterval() == null) {
+            throw new NullPointerException("booking interval can't be null");
+        }
+        if (booking.topicOfMeeting() == null) {
+            throw new NullPointerException("Topic of meeting can't be null");
+        }
     }
 }
