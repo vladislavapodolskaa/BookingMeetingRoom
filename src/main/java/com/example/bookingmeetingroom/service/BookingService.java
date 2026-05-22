@@ -2,7 +2,6 @@ package com.example.bookingmeetingroom.service;
 
 
 import com.example.bookingmeetingroom.domain.Booking;
-import com.example.bookingmeetingroom.domain.BookingInterval;
 import com.example.bookingmeetingroom.domain.BookingStatus;
 import com.example.bookingmeetingroom.entity.BookingEntity;
 import com.example.bookingmeetingroom.entity.RoomEntity;
@@ -40,12 +39,12 @@ public class BookingService {
 
     public void cancelBookingById(Long id, Long userId) {
         BookingEntity bookingEntity = bookingRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
-        if (bookingEntity.getStatus().equals(BookingStatus.CANCELLED)){
+        if (bookingEntity.getStatus().equals(BookingStatus.CANCELLED)) {
             throw new IllegalStateException("Can't cancel already cancelled booking id = " + id);
         }
         bookingEntity.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(bookingEntity);
-        bookingAuditService.cancelBookingAudit(userId, bookingEntity);
+        bookingAuditService.createBookingAuditCancel(userId, bookingEntity);
         logger.info("Booking id = {} successfully cancelled", id);
     }
 
@@ -74,7 +73,7 @@ public class BookingService {
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
-        bookingAuditService.createBookingAudit(bookingEntity);
+        bookingAuditService.createBookingAuditCreate(bookingEntity);
         logger.info("Booking successfully created");
         return toBooking(bookingEntity);
     }
@@ -119,8 +118,8 @@ public class BookingService {
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
-        bookingAuditService.updateBookingAudit(bookingEntity);
-        logger.info("Booking id = {} successfully updated", id);
+        bookingAuditService.createBookingAuditUpdate(bookingEntity);
+        logger.info("Booking id = {} successfully updated", booking.id());
         return toBooking(bookingEntity);
     }
 
@@ -142,6 +141,12 @@ public class BookingService {
     }
 
     private void validateBooking(Booking booking) {
+        if (booking.userId() == null) {
+            throw new IllegalArgumentException("User id can't be null");
+        }
+        if (booking.roomId() == null) {
+            throw new IllegalArgumentException("Room id can't be null");
+        }
         if (booking.status() != null) {
             throw new IllegalArgumentException("Status should be null");
         }

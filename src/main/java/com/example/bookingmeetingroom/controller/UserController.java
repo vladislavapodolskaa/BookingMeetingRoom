@@ -44,7 +44,7 @@ public class UserController {
     @PostMapping()
     public ResponseEntity<User> createUser(@RequestBody User user) {
         logger.info("Request to create user");
-        return  ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
     }
 
     @PutMapping()
@@ -52,8 +52,9 @@ public class UserController {
         logger.info("Request to update user with id = {}", user.id());
         return ResponseEntity.ok(userService.updateUserById(user));
     }
+
     @GetMapping("/{id}/audit")
-    public ResponseEntity<List<BookingAudit>> getBookingAuditsByUserId(@PathVariable Long id){
+    public ResponseEntity<List<BookingAudit>> getBookingAuditsByUserId(@PathVariable Long id) {
         return ResponseEntity.ok(bookingAuditService.getBookingAuditsByUserId(id));
     }
 }

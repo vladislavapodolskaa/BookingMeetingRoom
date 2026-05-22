@@ -45,15 +45,17 @@ public class RoomController {
     @PostMapping()
     public ResponseEntity<Room> createRoom(@RequestBody Room room) {
         logger.info("Request to create Room");
-        return  ResponseEntity.status(HttpStatus.CREATED).body(roomService.createRoom(room));
+        return ResponseEntity.status(HttpStatus.CREATED).body(roomService.createRoom(room));
     }
+
     @PutMapping()
-    public ResponseEntity<Room> updateRoomById(@RequestBody Room room){
+    public ResponseEntity<Room> updateRoomById(@RequestBody Room room) {
         logger.info("Request to update Room with id = {}", room.id());
         return ResponseEntity.ok(roomService.updateRoomById(room));
     }
+
     @GetMapping("/{id}/audit")
-    public ResponseEntity<List<BookingAudit>> getBookingAuditsByRoomId(@PathVariable Long id){
+    public ResponseEntity<List<BookingAudit>> getBookingAuditsByRoomId(@PathVariable Long id) {
         return ResponseEntity.ok(bookingAuditService.getBookingAuditsByRoomId(id));
     }
 }

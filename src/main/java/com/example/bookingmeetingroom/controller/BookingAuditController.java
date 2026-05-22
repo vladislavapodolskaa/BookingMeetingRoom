@@ -19,7 +19,7 @@ public class BookingAuditController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<BookingAudit>> getAllBookingAudit(){
-        return ResponseEntity.ok(bookingAuditService.findAll());
+    public ResponseEntity<List<BookingAudit>> getAllBookingAudits(){
+        return ResponseEntity.ok(bookingAuditService.findAllBookingAudits());
     }
 }

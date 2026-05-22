@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorMessage> handleIllegalArgumentException(IllegalArgumentException exception, WebRequest request){
+    public ResponseEntity<ErrorMessage> handleIllegalArgumentException(IllegalArgumentException exception, WebRequest request) {
         logger.warn("Validation failed: {}", exception.getMessage());
         ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.BAD_REQUEST.value(),
@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ErrorMessage> handleNoSuchElementException(NoSuchElementException exception, WebRequest request){
+    public ResponseEntity<ErrorMessage> handleNoSuchElementException(NoSuchElementException exception, WebRequest request) {
         logger.warn("Resource not found: {}", exception.getMessage());
         ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.NOT_FOUND.value(),
@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ErrorMessage> handleIllegalStateException(IllegalStateException exception, WebRequest request){
+    public ResponseEntity<ErrorMessage> handleIllegalStateException(IllegalStateException exception, WebRequest request) {
         logger.warn("State conflict: {}", exception.getMessage());
         ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.CONFLICT.value(),
@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorMessage> handleGlobalException(Exception exception, WebRequest request){
+    public ResponseEntity<ErrorMessage> handleGlobalException(Exception exception, WebRequest request) {
         logger.error("CRITICAL: Unexpected server error: {}", exception.getMessage());
         ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

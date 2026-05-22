@@ -11,10 +11,10 @@ public class BookingAuditEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private AuditAction action;
 
-    @Column
+    @Column(nullable = false)
     private LocalDateTime time;
 
     @ManyToOne(fetch = FetchType.LAZY)

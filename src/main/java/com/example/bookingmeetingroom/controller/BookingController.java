@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -46,7 +47,7 @@ public class BookingController {
     @PostMapping()
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
         logger.info("Request to create Booking. User: {}, Room: {}", booking.userId(), booking.roomId());
-        return  ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(booking));
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(booking));
     }
 
     @PutMapping()
@@ -56,7 +57,7 @@ public class BookingController {
     }
 
     @GetMapping("/{id}/audit")
-    public ResponseEntity<List<BookingAudit>> getBookingAuditById(@PathVariable Long id){
+    public ResponseEntity<List<BookingAudit>> getBookingAuditById(@PathVariable Long id) {
         return ResponseEntity.ok(bookingAuditService.getBookingAuditsByBookingId(id));
     }
 
