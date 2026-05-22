@@ -1,12 +1,11 @@
 package com.example.bookingmeetingroom.entity;
 
+import com.example.bookingmeetingroom.domain.BookingInterval;
 import com.example.bookingmeetingroom.domain.BookingStatus;
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Table (name = "bookings")
+@Table(name = "bookings")
 public class BookingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,24 +16,21 @@ public class BookingEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
     private RoomEntity room;
-    @Column
-    private LocalDateTime startTime;
-    @Column
-    private LocalDateTime endTime;
-    @Column
+    @Embedded
+    private BookingInterval bookingInterval;
+    @Column(nullable = false)
     private BookingStatus status;
-    @Column
+    @Column(nullable = false)
     private String topicOfMeeting;
 
     public BookingEntity() {
     }
 
-    public BookingEntity(Long id, UserEntity user, RoomEntity room, LocalDateTime startTime, LocalDateTime endTime, BookingStatus status, String topicOfMeeting) {
+    public BookingEntity(Long id, UserEntity user, RoomEntity room, BookingInterval bookingInterval, BookingStatus status, String topicOfMeeting) {
         this.id = id;
         this.user = user;
         this.room = room;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.bookingInterval = bookingInterval;
         this.status = status;
         this.topicOfMeeting = topicOfMeeting;
     }
@@ -63,20 +59,12 @@ public class BookingEntity {
         this.room = room;
     }
 
-    public LocalDateTime getStartTime() {
-        return startTime;
+    public BookingInterval getBookingInterval() {
+        return bookingInterval;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
+    public void setBookingInterval(BookingInterval bookingInterval) {
+        this.bookingInterval = bookingInterval;
     }
 
     public BookingStatus getStatus() {

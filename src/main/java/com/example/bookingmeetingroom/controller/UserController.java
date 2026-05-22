@@ -18,27 +18,28 @@ public class UserController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<User>> getAllUsers(){
+    public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id){
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable Long id){
+    public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
         userService.deleteUserById(id);
         return ResponseEntity.ok().build();
     }
-    //FIXME room
+
     @PostMapping()
-    public ResponseEntity<User> createRoom(@RequestBody User user){
-        return  ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
     }
+
     @PutMapping()
-    public ResponseEntity<User> updateUserById(@RequestBody User user){
+    public ResponseEntity<User> updateUserById(@RequestBody User user) {
         return ResponseEntity.ok(userService.updateUserById(user));
     }
 

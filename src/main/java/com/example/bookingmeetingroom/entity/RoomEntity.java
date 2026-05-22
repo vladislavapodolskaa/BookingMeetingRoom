@@ -9,9 +9,9 @@ public class RoomEntity {
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
+    @Column(nullable = false)
     String name;
-    @Column
+    @Column(nullable = false)
     int capacity;
 
     public RoomEntity() {

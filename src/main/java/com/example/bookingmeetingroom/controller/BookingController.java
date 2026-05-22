@@ -6,6 +6,7 @@ import com.example.bookingmeetingroom.service.BookingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -18,27 +19,28 @@ public class BookingController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Booking>> getAllBooking(){
-        return ResponseEntity.ok(bookingService.getAllBooking());
+    public ResponseEntity<List<Booking>> getAllBookings() {
+        return ResponseEntity.ok(bookingService.getAllBookings());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable Long id){
+    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
         return ResponseEntity.ok(bookingService.getBookingById(id));
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelRoomById(@PathVariable Long id){
+    public ResponseEntity<Void> cancelBookingById(@PathVariable Long id) {
         bookingService.cancelBookingById(id);
         return ResponseEntity.ok().build();
     }
 
-    //FIXME Room? ))
     @PostMapping()
-    public ResponseEntity<Booking> createRoom(@RequestBody Booking booking){
-        return  ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(booking));
+    public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(booking));
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<Booking> updateRoomById(@PathVariable Long id, @RequestBody Booking booking){
-        return ResponseEntity.ok(bookingService.updateBookingById(id, booking));
+
+    @PutMapping()
+    public ResponseEntity<Booking> updateBookingById(@RequestBody Booking booking) {
+        return ResponseEntity.ok(bookingService.updateBookingById(booking));
     }
 }
