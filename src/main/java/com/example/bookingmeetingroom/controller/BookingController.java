@@ -31,6 +31,8 @@ public class BookingController {
         bookingService.cancelBookingById(id);
         return ResponseEntity.ok().build();
     }
+
+    //FIXME Room? ))
     @PostMapping()
     public ResponseEntity<Booking> createRoom(@RequestBody Booking booking){
         return  ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(booking));

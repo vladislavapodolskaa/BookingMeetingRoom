@@ -23,6 +23,7 @@ public class BookingService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
 
+    // FIXME
     @Autowired
     public BookingService(BookingRepository bookingRepository, UserRepository userRepository, RoomRepository roomRepository) {
         this.bookingRepository = bookingRepository;
@@ -129,6 +130,7 @@ public class BookingService {
         );
     }
 
+    //FIXME
     public List<Booking> getAllBooking() {
         return bookingRepository.findAll().stream()
                 .map(this::toBooking)

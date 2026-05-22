@@ -19,12 +19,6 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll().stream().map(this::toUser).toList();
     }
-    private User toUser (UserEntity userEntity){
-        return new User(userEntity.getId(),
-                userEntity.getName(),
-                userEntity.getEmail(),
-                userEntity.getDepartment());
-    }
 
     public User getUserById(Long id) {
         return toUser(userRepository
@@ -32,6 +26,7 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchElementException("User not found by id = " + id)));
     }
 
+    // FIXME
     public void deleteUserById(Long id) {
         if (!userRepository.existsById(id)){
             throw new NoSuchElementException("User not found by id = " + id);
@@ -52,20 +47,27 @@ public class UserService {
         return toUser(userEntity);
     }
 
-    public User updateUserById(Long id, User user) {
-        if (!userRepository.existsById(id)){
-            throw new NoSuchElementException("User not found by id = " + id);
-        }
-        if (user.id() != null){
+    public User updateUserById(User user) {
+        if (user.id() == null){
             throw new IllegalArgumentException("Id should be null");
         }
+        if (!userRepository.existsById(user.id())){
+            throw new NoSuchElementException("User not found by id = " + user.id());
+        }
         UserEntity userEntity = new UserEntity(
-                id,
+                user.id(),
                 user.name(),
                 user.email(),
                 user.department()
         );
         userRepository.save(userEntity);
         return toUser(userEntity);
+    }
+
+    private User toUser (UserEntity userEntity){
+        return new User(userEntity.getId(),
+                userEntity.getName(),
+                userEntity.getEmail(),
+                userEntity.getDepartment());
     }
 }
