@@ -61,13 +61,13 @@ public class RoomService {
         }
 
         validateRoom(room);
-        
+
         RoomEntity roomEntity = new RoomEntity(
                 room.id(),
                 room.name(),
                 room.capacity());
         roomRepository.save(roomEntity);
-        logger.info("Room with id = {} successfully updated", id);
+        logger.info("Room with id = {} successfully updated", room.id());
         return toRoom(roomEntity);
     }
 
@@ -79,7 +79,7 @@ public class RoomService {
 
     private void validateRoom(Room room) {
         if (room.name() == null) {
-            throw new NullPointerException("Name can't ne null");
+            throw new IllegalArgumentException("Name can't ne null");
         }
         if (room.capacity() <= 0) {
             throw new IllegalArgumentException("Room's capacity should be positive");

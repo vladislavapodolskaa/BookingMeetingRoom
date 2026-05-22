@@ -12,7 +12,6 @@ import com.example.bookingmeetingroom.repository.RoomRepository;
 import com.example.bookingmeetingroom.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -136,8 +135,7 @@ public class BookingService {
                 bookingEntity.getId(),
                 bookingEntity.getUser().getId(),
                 bookingEntity.getRoom().getId(),
-                bookingEntity.getStartTime(),
-                bookingEntity.getEndTime(),
+                bookingEntity.getBookingInterval(),
                 bookingEntity.getStatus(),
                 bookingEntity.getTopicOfMeeting()
         );
@@ -148,10 +146,10 @@ public class BookingService {
             throw new IllegalArgumentException("Status should be null");
         }
         if (booking.bookingInterval() == null) {
-            throw new NullPointerException("booking interval can't be null");
+            throw new IllegalArgumentException("booking interval can't be null");
         }
         if (booking.topicOfMeeting() == null) {
-            throw new NullPointerException("Topic of meeting can't be null");
+            throw new IllegalArgumentException("Topic of meeting can't be null");
         }
     }
 }

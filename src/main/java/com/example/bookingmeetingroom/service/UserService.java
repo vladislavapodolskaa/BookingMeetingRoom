@@ -72,7 +72,7 @@ public class UserService {
                 user.department()
         );
         userRepository.save(userEntity);
-        logger.info("User with id = {} successfully updated", id);
+        logger.info("User with id = {} successfully updated", user.id());
         return toUser(userEntity);
     }
 
@@ -85,13 +85,13 @@ public class UserService {
 
     private void validateUser(User user) {
         if (user.department() == null) {
-            throw new NullPointerException("Department can't be null");
+            throw new IllegalArgumentException("Department can't be null");
         }
         if (user.name() == null) {
-            throw new NullPointerException("Name can't be null");
+            throw new IllegalArgumentException("Name can't be null");
         }
         if (user.email() == null) {
-            throw new NullPointerException("Email can't be null");
+            throw new IllegalArgumentException("Email can't be null");
         }
     }
 }
