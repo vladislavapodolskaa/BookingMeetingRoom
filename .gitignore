@@ -40,4 +40,4 @@ build/
 *.iml
 
 # Исключаем конфигурационный файл с паролями и настройками базы
-/src/main/resources/application.properties
+/src/main/resources/application-local.properties

@@ -23,30 +23,34 @@ public class RoomController {
         this.roomService = roomService;
         this.bookingAuditService = bookingAuditService;
     }
+
     @GetMapping()
-    public ResponseEntity<List<Room>> getAllRoom(){
-        List<Room> rooms = roomService.getAllRoom();
+    public ResponseEntity<List<Room>> getAllRooms() {
+        List<Room> rooms = roomService.getAllRooms();
         return ResponseEntity.ok(rooms);
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Room> getRoomById(@PathVariable Long id){
+    public ResponseEntity<Room> getRoomById(@PathVariable Long id) {
         return ResponseEntity.ok(roomService.getRoomById(id));
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRoomById(@PathVariable Long id){
+    public ResponseEntity<Void> deleteRoomById(@PathVariable Long id) {
         logger.info("Request to delete Room with id = {}", id);
         roomService.deleteRoomById(id);
         return ResponseEntity.ok().build();
     }
+
     @PostMapping()
-    public ResponseEntity<Room> createRoom(@RequestBody Room room){
+    public ResponseEntity<Room> createRoom(@RequestBody Room room) {
         logger.info("Request to create Room");
         return  ResponseEntity.status(HttpStatus.CREATED).body(roomService.createRoom(room));
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<Room> updateRoomById(@PathVariable Long id, @RequestBody Room room){
-        logger.info("Request to update Room with id = {}", id);
-        return ResponseEntity.ok(roomService.updateRoomById(id, room));
+    @PutMapping()
+    public ResponseEntity<Room> updateRoomById(@RequestBody Room room){
+        logger.info("Request to update Room with id = {}", room.id());
+        return ResponseEntity.ok(roomService.updateRoomById(room));
     }
     @GetMapping("/{id}/audit")
     public ResponseEntity<List<BookingAudit>> getBookingAuditsByRoomId(@PathVariable Long id){

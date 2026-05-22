@@ -22,12 +22,6 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll().stream().map(this::toUser).toList();
     }
-    private User toUser (UserEntity userEntity){
-        return new User(userEntity.getId(),
-                userEntity.getName(),
-                userEntity.getEmail(),
-                userEntity.getDepartment());
-    }
 
     public User getUserById(Long id) {
         return toUser(userRepository
@@ -36,7 +30,7 @@ public class UserService {
     }
 
     public void deleteUserById(Long id) {
-        if (!userRepository.existsById(id)){
+        if (userRepository.notExistsById(id)) {
             throw new NoSuchElementException("User not found by id = " + id);
         }
         userRepository.deleteById(id);
@@ -44,9 +38,12 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        if (user.id() != null){
+        if (user.id() != null) {
             throw new IllegalArgumentException("Id should be null");
         }
+
+        validateUser(user);
+
         UserEntity userEntity = new UserEntity(
                 null,
                 user.name(),
@@ -58,15 +55,18 @@ public class UserService {
         return toUser(userEntity);
     }
 
-    public User updateUserById(Long id, User user) {
-        if (!userRepository.existsById(id)){
-            throw new NoSuchElementException("User not found by id = " + id);
+    public User updateUserById(User user) {
+        if (user.id() == null) {
+            throw new IllegalArgumentException("Id can't be null");
         }
-        if (user.id() != null){
-            throw new IllegalArgumentException("Id should be null");
+        if (userRepository.notExistsById(user.id())) {
+            throw new NoSuchElementException("User not found by id = " + user.id());
         }
+
+        validateUser(user);
+
         UserEntity userEntity = new UserEntity(
-                id,
+                user.id(),
                 user.name(),
                 user.email(),
                 user.department()
@@ -74,5 +74,24 @@ public class UserService {
         userRepository.save(userEntity);
         logger.info("User with id = {} successfully updated", id);
         return toUser(userEntity);
+    }
+
+    private User toUser(UserEntity userEntity) {
+        return new User(userEntity.getId(),
+                userEntity.getName(),
+                userEntity.getEmail(),
+                userEntity.getDepartment());
+    }
+
+    private void validateUser(User user) {
+        if (user.department() == null) {
+            throw new NullPointerException("Department can't be null");
+        }
+        if (user.name() == null) {
+            throw new NullPointerException("Name can't be null");
+        }
+        if (user.email() == null) {
+            throw new NullPointerException("Email can't be null");
+        }
     }
 }

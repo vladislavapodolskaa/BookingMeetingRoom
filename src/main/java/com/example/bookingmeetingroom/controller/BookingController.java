@@ -25,9 +25,9 @@ public class BookingController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Booking>> getAllBooking(){
+    public ResponseEntity<List<Booking>> getAllBookings(){
         logger.info("Request to get All Booking");
-        return ResponseEntity.ok(bookingService.getAllBooking());
+        return ResponseEntity.ok(bookingService.getAllBookings());
     }
 
     @GetMapping("/{id}")
@@ -35,21 +35,23 @@ public class BookingController {
         logger.info("Request to get Booking: {}", id);
         return ResponseEntity.ok(bookingService.getBookingById(id));
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelRoomById(@PathVariable Long id, @RequestParam Long userId){
+    public ResponseEntity<Void> cancelBookingById(@PathVariable Long id, @RequestParam Long userId){
         logger.info("Request to cancel Booking: {}", id);
         bookingService.cancelBookingById(id, userId);
         return ResponseEntity.ok().build();
     }
+
     @PostMapping()
-    public ResponseEntity<Booking> createRoom(@RequestBody Booking booking){
+    public ResponseEntity<Booking> createBooking(@RequestBody Booking booking){
         logger.info("Request to create Booking. User: {}, Room: {}", booking.userId(), booking.roomId());
         return  ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(booking));
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Booking> updateRoomById(@PathVariable Long id, @RequestBody Booking booking){
+    public ResponseEntity<Booking> updateBookingById(@RequestBody Booking booking){
         logger.info("Request to update Booking. User: {}, Room: {}", booking.userId(), booking.roomId());
-        return ResponseEntity.ok(bookingService.updateBookingById(id, booking));
+        return ResponseEntity.ok(bookingService.updateBookingById(booking));
     }
 
     @GetMapping("/{id}/audit")
