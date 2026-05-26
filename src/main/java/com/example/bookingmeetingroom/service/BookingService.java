@@ -1,6 +1,7 @@
 package com.example.bookingmeetingroom.service;
 
 
+import com.example.bookingmeetingroom.domain.AuditAction;
 import com.example.bookingmeetingroom.domain.Booking;
 import com.example.bookingmeetingroom.domain.BookingStatus;
 import com.example.bookingmeetingroom.entity.BookingEntity;
@@ -12,7 +13,9 @@ import com.example.bookingmeetingroom.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -37,17 +40,19 @@ public class BookingService {
                 .orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
     }
 
-    public void cancelBookingById(Long id, Long userId) {
+    @Transactional
+    public void cancelBookingById(Long id) {
         BookingEntity bookingEntity = bookingRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
         if (bookingEntity.getStatus().equals(BookingStatus.CANCELLED)) {
             throw new IllegalStateException("Can't cancel already cancelled booking id = " + id);
         }
         bookingEntity.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(bookingEntity);
-        bookingAuditService.createBookingAuditCancel(userId, bookingEntity);
+        bookingAuditService.createBookingAudit(toBooking(bookingEntity), AuditAction.CANCEL);
         logger.info("Booking id = {} successfully cancelled", id);
     }
 
+    @Transactional
     public Booking createBooking(Booking booking) {
         validateBooking(booking);
 
@@ -73,11 +78,12 @@ public class BookingService {
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
-        bookingAuditService.createBookingAuditCreate(bookingEntity);
+        bookingAuditService.createBookingAudit(toBooking(bookingEntity), AuditAction.CREATE);
         logger.info("Booking successfully created");
         return toBooking(bookingEntity);
     }
 
+    @Transactional
     public Booking updateBookingById(Booking booking) {
         if (booking.id() == null) {
             throw new IllegalArgumentException("Id can't be null");
@@ -118,13 +124,13 @@ public class BookingService {
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
-        bookingAuditService.createBookingAuditUpdate(bookingEntity);
+        bookingAuditService.createBookingAudit(toBooking(bookingEntity), AuditAction.UPDATE);
         logger.info("Booking id = {} successfully updated", booking.id());
         return toBooking(bookingEntity);
     }
 
-    public List<Booking> getAllBookings() {
-        return bookingRepository.findAll().stream()
+    public List<Booking> getAllActualBookings() {
+        return bookingRepository.findAllByStatusAndBookingInterval_EndTimeAfter(BookingStatus.CONFIRMED, LocalDateTime.now()).stream()
                 .map(this::toBooking)
                 .toList();
     }
