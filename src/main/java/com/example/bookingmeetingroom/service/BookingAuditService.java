@@ -5,7 +5,9 @@ import com.example.bookingmeetingroom.domain.Booking;
 import com.example.bookingmeetingroom.domain.BookingAudit;
 import com.example.bookingmeetingroom.entity.BookingAuditEntity;
 import com.example.bookingmeetingroom.entity.BookingEntity;
+import com.example.bookingmeetingroom.entity.UserEntity;
 import com.example.bookingmeetingroom.repository.BookingAuditRepository;
+import com.example.bookingmeetingroom.repository.BookingRepository;
 import com.example.bookingmeetingroom.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +19,12 @@ import java.util.NoSuchElementException;
 public class BookingAuditService {
     private final BookingAuditRepository bookingAuditRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
-    public BookingAuditService(BookingAuditRepository bookingAuditRepository, UserRepository userRepository) {
+    public BookingAuditService(BookingAuditRepository bookingAuditRepository, UserRepository userRepository, BookingRepository bookingRepository) {
         this.bookingAuditRepository = bookingAuditRepository;
         this.userRepository = userRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     public List<BookingAudit> getBookingAuditsByBookingId(Long id) {
@@ -39,36 +43,18 @@ public class BookingAuditService {
         return bookingAuditRepository.findByUserId(id).stream().map(this::toBookingAudit).toList();
     }
 
-    public BookingAudit createBookingAuditCancel(Long userId, BookingEntity booking) {
-        BookingAuditEntity bookingAuditEntity = new BookingAuditEntity(
-                null,
-                AuditAction.CANCEL,
-                LocalDateTime.now(),
-                userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("User not found id = " + userId)),
-                booking
-        );
-        bookingAuditRepository.save(bookingAuditEntity);
-        return toBookingAudit(bookingAuditEntity);
-    }
 
-    public BookingAudit createBookingAuditCreate(BookingEntity bookingEntity) {
-        BookingAuditEntity bookingAuditEntity = new BookingAuditEntity(
-                null,
-                AuditAction.CREATE,
-                LocalDateTime.now(),
-                bookingEntity.getUser(),
-                bookingEntity
-        );
-        bookingAuditRepository.save(bookingAuditEntity);
-        return toBookingAudit(bookingAuditEntity);
-    }
+    public BookingAudit createBookingAudit(Booking booking, AuditAction action) {
+        UserEntity userEntity = userRepository.findById(booking.userId())
+                .orElseThrow(() -> new NoSuchElementException("User not found by id = " + booking.userId()));
+        BookingEntity bookingEntity = bookingRepository.findById(booking.id())
+                .orElseThrow(() -> new NoSuchElementException("Booking not found by id = " + booking.id()));
 
-    public BookingAudit createBookingAuditUpdate(BookingEntity bookingEntity) {
         BookingAuditEntity bookingAuditEntity = new BookingAuditEntity(
                 null,
-                AuditAction.UPDATE,
+                action,
                 LocalDateTime.now(),
-                bookingEntity.getUser(),
+                userEntity,
                 bookingEntity
         );
         bookingAuditRepository.save(bookingAuditEntity);
