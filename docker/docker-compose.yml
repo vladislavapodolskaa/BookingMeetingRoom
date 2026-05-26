@@ -1,17 +1,16 @@
-version: '3.8'
-
 services:
   postgres-db:
     image: postgres:latest
     container_name: booking-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: MeetingRoom
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_DB: booking_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres_password
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - docker_pgdata:/var/lib/postgresql
+    restart: unless-stopped
 
 volumes:
-  pgdata:
+  docker_pgdata:
