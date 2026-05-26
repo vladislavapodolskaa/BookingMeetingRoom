@@ -11,7 +11,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres_password
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
 
 volumes:
-  pgdata:
+  postgres_data:

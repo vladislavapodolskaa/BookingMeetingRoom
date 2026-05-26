@@ -13,7 +13,7 @@ public record BookingInterval(
 
     public BookingInterval {
         if (endTime == null || startTime == null){
-            throw new NullPointerException("Date can't be null");
+            throw new IllegalArgumentException("Date can't be null");
         }
         if (endTime.isBefore(startTime)) {
             throw new IllegalArgumentException("End date is before start date");

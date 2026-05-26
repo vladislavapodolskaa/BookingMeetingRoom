@@ -2,6 +2,8 @@ package com.example.bookingmeetingroom.entity;
 
 import jakarta.persistence.*;
 
+import java.util.function.Function;
+
 @Entity
 @Table(name = "users")
 public class UserEntity {
