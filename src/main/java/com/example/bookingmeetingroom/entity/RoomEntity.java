@@ -1,4 +1,4 @@
-package com.example.bookingmeetingroom.Entity;
+package com.example.bookingmeetingroom.entity;
 
 import jakarta.persistence.*;
 
@@ -9,9 +9,9 @@ public class RoomEntity {
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
+    @Column(nullable = false)
     String name;
-    @Column
+    @Column(nullable = false)
     int capacity;
 
     public RoomEntity() {

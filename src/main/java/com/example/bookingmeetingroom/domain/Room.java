@@ -1,4 +1,4 @@
-package com.example.bookingmeetingroom.Domain;
+package com.example.bookingmeetingroom.domain;
 
 public record Room(
         Long id,
