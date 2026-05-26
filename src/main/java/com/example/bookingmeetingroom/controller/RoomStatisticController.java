@@ -1,13 +1,12 @@
 package com.example.bookingmeetingroom.controller;
 
-import com.example.bookingmeetingroom.domain.RoomWeeklyStatistic;
+import com.example.bookingmeetingroom.domain.RoomStatistic;
 import com.example.bookingmeetingroom.service.RoomStatisticService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -20,12 +19,19 @@ public class RoomStatisticController {
     }
 
     @GetMapping("/statistic")
-    public ResponseEntity<List<RoomWeeklyStatistic>> getRoomsStatistics() {
-        return ResponseEntity.ok(roomStatisticService.getAllRoomsStatistics());
+    public ResponseEntity<List<RoomStatistic>> getRoomsStatistics(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date
+    ) {
+        LocalDateTime finalDate = (date != null) ? date : LocalDateTime.now().minusWeeks(1);
+        return ResponseEntity.ok(roomStatisticService.getAllRoomsStatisticsFromDate(finalDate));
     }
 
     @GetMapping("/{id}/statistic")
-    public ResponseEntity<RoomWeeklyStatistic> getRoomWeeklyStatistic(@PathVariable Long id) {
-        return ResponseEntity.ok(roomStatisticService.getRoomWeeklyStatistic(id));
+    public ResponseEntity<RoomStatistic> getRoomStatisticFromDate(
+            @PathVariable Long id,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date
+    ) {
+        LocalDateTime finalDate = (date != null) ? date : LocalDateTime.now().minusWeeks(1);
+        return ResponseEntity.ok(roomStatisticService.getRoomStatisticFromDate(id, finalDate));
     }
 }

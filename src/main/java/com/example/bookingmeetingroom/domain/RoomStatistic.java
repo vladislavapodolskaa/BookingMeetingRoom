@@ -1,6 +1,6 @@
 package com.example.bookingmeetingroom.domain;
 
-public record RoomWeeklyStatistic(
+public record RoomStatistic(
         String roomName,
         int totalBookings,
         long activeDaysCount,

@@ -1,7 +1,7 @@
 package com.example.bookingmeetingroom.service;
 
 import com.example.bookingmeetingroom.domain.BookingStatus;
-import com.example.bookingmeetingroom.domain.RoomWeeklyStatistic;
+import com.example.bookingmeetingroom.domain.RoomStatistic;
 import com.example.bookingmeetingroom.entity.BookingEntity;
 import com.example.bookingmeetingroom.entity.RoomEntity;
 import com.example.bookingmeetingroom.repository.BookingRepository;
@@ -18,21 +18,19 @@ import java.util.NoSuchElementException;
 public class RoomStatisticService {
     private final BookingRepository bookingRepository;
     private final RoomRepository roomRepository;
-    private final LocalDateTime startWeek;
 
     public RoomStatisticService(BookingRepository bookingRepository, RoomRepository roomRepository) {
         this.bookingRepository = bookingRepository;
         this.roomRepository = roomRepository;
-        startWeek = LocalDateTime.now().minusDays(7);
     }
 
-    public RoomWeeklyStatistic getRoomWeeklyStatistic(Long roomId) {
+    public RoomStatistic getRoomStatisticFromDate(Long roomId, LocalDateTime date) {
         RoomEntity room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new NoSuchElementException("Room not found by id = " + roomId));
 
-        List<BookingEntity> bookings = bookingRepository.findAllByRoomAndStatusAndBookingIntervalStartTimeAfter(roomId, BookingStatus.CONFIRMED, startWeek);
+        List<BookingEntity> bookings = bookingRepository.findAllByRoomAndStatusAndBookingIntervalStartTimeAfter(roomId, BookingStatus.CONFIRMED, date);
 
-        Long totalMinutes = bookings
+        long totalMinutes = bookings
                 .stream()
                 .mapToLong(it -> Duration.between(
                         it.getBookingInterval().startTime(),
@@ -47,7 +45,7 @@ public class RoomStatisticService {
 
         long averageMinutesPerDay = activeDaysCount > 0 ? Math.round((double) totalMinutes / activeDaysCount) : 0;
 
-        return new RoomWeeklyStatistic(
+        return new RoomStatistic(
                 room.getName(),
                 bookings.size(),
                 activeDaysCount,
@@ -55,10 +53,10 @@ public class RoomStatisticService {
         );
     }
 
-    public List<RoomWeeklyStatistic> getAllRoomsStatistics() {
+    public List<RoomStatistic> getAllRoomsStatisticsFromDate(LocalDateTime date) {
         return roomRepository.findAll().stream()
                 .sorted(Comparator.comparing(RoomEntity::getId))
-                .map(it -> getRoomWeeklyStatistic(it.getId()))
+                .map(it -> getRoomStatisticFromDate(it.getId(), date))
                 .toList();
     }
 
