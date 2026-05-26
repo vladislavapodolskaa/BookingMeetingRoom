@@ -4,14 +4,15 @@ services:
   postgres-db:
     image: postgres:latest
     container_name: booking-postgres
-    ports:
-      - "5432:5432"
     environment:
-      POSTGRES_DB: booking_db
+      POSTGRES_DB: MeetingRoom
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres_password
+    ports:
+      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - docker_pgdata:/var/lib/postgresql
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
+  docker_pgdata:

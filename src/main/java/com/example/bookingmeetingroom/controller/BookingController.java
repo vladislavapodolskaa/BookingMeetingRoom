@@ -26,9 +26,9 @@ public class BookingController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Booking>> getAllBookings() {
-        logger.info("Request to get All Booking");
-        return ResponseEntity.ok(bookingService.getAllBookings());
+    public ResponseEntity<List<Booking>> getAllActualBookings() {
+        logger.info("Request to get all actual Booking");
+        return ResponseEntity.ok(bookingService.getAllActualBookings());
     }
 
     @GetMapping("/{id}")
@@ -38,9 +38,9 @@ public class BookingController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelBookingById(@PathVariable Long id, @RequestParam Long userId) {
+    public ResponseEntity<Void> cancelBookingById(@PathVariable Long id) {
         logger.info("Request to cancel Booking: {}", id);
-        bookingService.cancelBookingById(id, userId);
+        bookingService.cancelBookingById(id);
         return ResponseEntity.ok().build();
     }
 
