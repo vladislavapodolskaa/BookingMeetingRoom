@@ -1,6 +1,7 @@
 package com.example.bookingmeetingroom.service;
 
 
+import com.example.bookingmeetingroom.annotation.AuditAnnotation;
 import com.example.bookingmeetingroom.domain.Booking;
 import com.example.bookingmeetingroom.entity.BookingEntity;
 import com.example.bookingmeetingroom.entity.RoomEntity;
@@ -11,7 +12,6 @@ import com.example.bookingmeetingroom.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,14 +27,12 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
-    private final AuditService auditService;
     private final Logger logger = LoggerFactory.getLogger(BookingService.class);
 
-    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, RoomRepository roomRepository, AuditService auditService) {
+    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, RoomRepository roomRepository) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
-        this.auditService = auditService;
     }
 
     public Booking getBookingById(Long id) {
@@ -42,7 +40,7 @@ public class BookingService {
                 .orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
     }
 
-    @Transactional
+    @AuditAnnotation(CANCEL)
     public void cancelBookingById(Long id) {
         BookingEntity bookingEntity = bookingRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
         if (bookingEntity.getStatus().equals(CANCELLED)) {
@@ -50,11 +48,10 @@ public class BookingService {
         }
         bookingEntity.setStatus(CANCELLED);
         bookingRepository.save(bookingEntity);
-        auditService.auditBooking(CANCEL, bookingEntity.getId());
         logger.info("Booking id = {} successfully cancelled", id);
     }
 
-    @Transactional
+    @AuditAnnotation(CREATE)
     public Booking createBooking(Booking booking) {
         validateBooking(booking);
 
@@ -80,12 +77,11 @@ public class BookingService {
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
-        auditService.auditBooking(CREATE, bookingEntity.getId());
         logger.info("Booking successfully created");
         return toBooking(bookingEntity);
     }
 
-    @Transactional
+    @AuditAnnotation(UPDATE)
     public Booking updateBookingById(Booking booking) {
         if (booking.id() == null) {
             throw new IllegalArgumentException("Id can't be null");
@@ -126,13 +122,12 @@ public class BookingService {
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
-        auditService.auditBooking(UPDATE, booking.id());
         logger.info("Booking id = {} successfully updated", booking.id());
         return toBooking(bookingEntity);
     }
 
     public List<Booking> getAllActualBookings() {
-        return bookingRepository.findAllByStatusAndBookingIntervalEndTimeAfter(BookingStatus.CONFIRMED, LocalDateTime.now()).stream()
+        return bookingRepository.findAllByStatusAndBookingIntervalEndTimeAfter(CONFIRMED, LocalDateTime.now()).stream()
                 .map(this::toBooking)
                 .toList();
     }
@@ -160,6 +155,9 @@ public class BookingService {
         }
         if (booking.bookingInterval() == null) {
             throw new IllegalArgumentException("booking interval can't be null");
+        }
+        if (booking.bookingInterval().startTime().isBefore(java.time.LocalDateTime.now())) {
+            throw new IllegalArgumentException("Start date can't be in the past");
         }
         if (booking.topicOfMeeting() == null) {
             throw new IllegalArgumentException("Topic of meeting can't be null");
