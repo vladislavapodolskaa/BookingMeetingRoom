@@ -156,6 +156,9 @@ public class BookingService {
         if (booking.bookingInterval() == null) {
             throw new IllegalArgumentException("booking interval can't be null");
         }
+        if (booking.bookingInterval().startTime().isBefore(java.time.LocalDateTime.now())) {
+            throw new IllegalArgumentException("Start date can't be in the past");
+        }
         if (booking.topicOfMeeting() == null) {
             throw new IllegalArgumentException("Topic of meeting can't be null");
         }
