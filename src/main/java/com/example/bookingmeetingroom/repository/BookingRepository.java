@@ -17,4 +17,19 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
     @Query("select b from BookingEntity b where b.status = :status and b.bookingInterval.endTime >= :endTime")
     List<BookingEntity> findAllByStatusAndBookingInterval_EndTimeAfter(@Param("status") BookingStatus status, @Param("endTime") LocalDateTime endTime);
 
+    @Query("select b from BookingEntity b where b.room.id = :roomId " +
+            "and b.status = :status " +
+            "and b.bookingInterval.startTime > :date")
+    List<BookingEntity> findAllByRoomAndStatusAndBookingIntervalStartTimeAfter(
+            @Param("roomId") Long roomId,
+            @Param("status") BookingStatus status,
+            @Param("date") LocalDateTime date
+    );
+
+    @Query("select b from BookingEntity b where b.status = :status " +
+            "and b.bookingInterval.startTime > :date")
+    List<BookingEntity> findAllByStatusAndBookingIntervalStartTimeAfter(
+            @Param("status") BookingStatus status,
+            @Param("date") LocalDateTime date
+    );
 }
