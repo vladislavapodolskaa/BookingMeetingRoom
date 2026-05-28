@@ -3,6 +3,8 @@ package com.example.bookingmeetingroom.service;
 import com.example.bookingmeetingroom.domain.User;
 import com.example.bookingmeetingroom.entity.UserEntity;
 import com.example.bookingmeetingroom.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.NoSuchElementException;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -31,6 +34,7 @@ public class UserService {
             throw new NoSuchElementException("User not found by id = " + id);
         }
         userRepository.deleteById(id);
+        logger.info("User with id = {} successfully deleted", id);
     }
 
     public User createUser(User user) {
@@ -47,6 +51,7 @@ public class UserService {
                 user.department()
         );
         userRepository.save(userEntity);
+        logger.info("User successfully created");
         return toUser(userEntity);
     }
 
@@ -67,6 +72,7 @@ public class UserService {
                 user.department()
         );
         userRepository.save(userEntity);
+        logger.info("User with id = {} successfully updated", user.id());
         return toUser(userEntity);
     }
 
