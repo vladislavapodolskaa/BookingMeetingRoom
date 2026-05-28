@@ -3,7 +3,7 @@ package com.example.bookingmeetingroom;
 
 import com.example.bookingmeetingroom.controller.BookingController;
 import com.example.bookingmeetingroom.domain.Booking;
-import com.example.bookingmeetingroom.service.BookingAuditService;
+import com.example.bookingmeetingroom.service.AuditService;
 import com.example.bookingmeetingroom.service.BookingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ class BookingControllerTest {
     @MockitoBean
     private BookingService bookingService;
     @MockitoBean
-    private BookingAuditService bookingAuditService;
+    private AuditService auditService;
 
 
     @Test

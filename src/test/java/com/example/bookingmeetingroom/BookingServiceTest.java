@@ -9,7 +9,7 @@ import com.example.bookingmeetingroom.entity.UserEntity;
 import com.example.bookingmeetingroom.repository.BookingRepository;
 import com.example.bookingmeetingroom.repository.RoomRepository;
 import com.example.bookingmeetingroom.repository.UserRepository;
-import com.example.bookingmeetingroom.service.BookingAuditService;
+import com.example.bookingmeetingroom.service.AuditService;
 import com.example.bookingmeetingroom.service.BookingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class BookingServiceTest {
     @Mock
     private RoomRepository roomRepository;
     @Mock
-    private BookingAuditService bookingAuditService;
+    private AuditService auditService;
 
     private RoomEntity testRoom;
 

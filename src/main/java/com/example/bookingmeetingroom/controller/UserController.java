@@ -1,8 +1,6 @@
 package com.example.bookingmeetingroom.controller;
 
-import com.example.bookingmeetingroom.domain.BookingAudit;
 import com.example.bookingmeetingroom.domain.User;
-import com.example.bookingmeetingroom.service.BookingAuditService;
 import com.example.bookingmeetingroom.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +14,10 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
-    private final BookingAuditService bookingAuditService;
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    public UserController(UserService userService, BookingAuditService bookingAuditService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.bookingAuditService = bookingAuditService;
     }
 
     @GetMapping()
@@ -51,10 +47,5 @@ public class UserController {
     public ResponseEntity<User> updateUserById(@RequestBody User user) {
         logger.info("Request to update user with id = {}", user.id());
         return ResponseEntity.ok(userService.updateUserById(user));
-    }
-
-    @GetMapping("/{id}/audit")
-    public ResponseEntity<List<BookingAudit>> getBookingAuditsByUserId(@PathVariable Long id) {
-        return ResponseEntity.ok(bookingAuditService.getBookingAuditsByUserId(id));
     }
 }

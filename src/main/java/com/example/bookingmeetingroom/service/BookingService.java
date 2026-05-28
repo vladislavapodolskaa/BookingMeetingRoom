@@ -1,9 +1,7 @@
 package com.example.bookingmeetingroom.service;
 
 
-import com.example.bookingmeetingroom.domain.AuditAction;
 import com.example.bookingmeetingroom.domain.Booking;
-import com.example.bookingmeetingroom.domain.BookingStatus;
 import com.example.bookingmeetingroom.entity.BookingEntity;
 import com.example.bookingmeetingroom.entity.RoomEntity;
 import com.example.bookingmeetingroom.entity.UserEntity;
@@ -19,20 +17,24 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static com.example.bookingmeetingroom.domain.AuditAction.*;
+import static com.example.bookingmeetingroom.domain.BookingStatus.CANCELLED;
+import static com.example.bookingmeetingroom.domain.BookingStatus.CONFIRMED;
+
 
 @Service
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
-    private final BookingAuditService bookingAuditService;
+    private final AuditService auditService;
     private final Logger logger = LoggerFactory.getLogger(BookingService.class);
 
-    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, RoomRepository roomRepository, BookingAuditService bookingAuditService) {
+    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, RoomRepository roomRepository, AuditService auditService) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
-        this.bookingAuditService = bookingAuditService;
+        this.auditService = auditService;
     }
 
     public Booking getBookingById(Long id) {
@@ -43,12 +45,12 @@ public class BookingService {
     @Transactional
     public void cancelBookingById(Long id) {
         BookingEntity bookingEntity = bookingRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
-        if (bookingEntity.getStatus().equals(BookingStatus.CANCELLED)) {
+        if (bookingEntity.getStatus().equals(CANCELLED)) {
             throw new IllegalStateException("Can't cancel already cancelled booking id = " + id);
         }
-        bookingEntity.setStatus(BookingStatus.CANCELLED);
+        bookingEntity.setStatus(CANCELLED);
         bookingRepository.save(bookingEntity);
-        bookingAuditService.createBookingAudit(toBooking(bookingEntity), AuditAction.CANCEL);
+        auditService.auditBooking(CANCEL, bookingEntity.getId());
         logger.info("Booking id = {} successfully cancelled", id);
     }
 
@@ -62,7 +64,7 @@ public class BookingService {
         RoomEntity room = roomRepository.findById(booking.roomId())
                 .orElseThrow(() -> new NoSuchElementException("Room not exist by id = " + booking.roomId()));
 
-        boolean hasOverlap = bookingRepository.findAllByRoomAndStatus(room, BookingStatus.CONFIRMED).stream()
+        boolean hasOverlap = bookingRepository.findAllByRoomAndStatus(room, CONFIRMED).stream()
                 .anyMatch(it -> IntervalChecker.intervalCheck(it.getBookingInterval(), booking.bookingInterval()));
 
         if (hasOverlap) {
@@ -74,11 +76,11 @@ public class BookingService {
                 user,
                 room,
                 booking.bookingInterval(),
-                BookingStatus.CONFIRMED,
+                CONFIRMED,
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
-        bookingAuditService.createBookingAudit(toBooking(bookingEntity), AuditAction.CREATE);
+        auditService.auditBooking(CREATE, bookingEntity.getId());
         logger.info("Booking successfully created");
         return toBooking(bookingEntity);
     }
@@ -93,7 +95,7 @@ public class BookingService {
 
         BookingEntity bookingEntity = bookingRepository.findById(booking.id()).orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + booking.id()));
 
-        if (bookingEntity.getStatus().equals(BookingStatus.CANCELLED)) {
+        if (bookingEntity.getStatus().equals(CANCELLED)) {
             throw new IllegalArgumentException("Can't update cancelled booking id = " + booking.id());
         }
 
@@ -107,7 +109,7 @@ public class BookingService {
         RoomEntity room = roomRepository.findById(booking.roomId())
                 .orElseThrow(() -> new NoSuchElementException("Room not exist by id = " + booking.roomId()));
 
-        boolean hasOverlap = bookingRepository.findAllByRoomAndStatus(room, BookingStatus.CONFIRMED).stream()
+        boolean hasOverlap = bookingRepository.findAllByRoomAndStatus(room, CONFIRMED).stream()
                 .filter(it -> !it.getId().equals(booking.id()))
                 .anyMatch(it -> IntervalChecker.intervalCheck(booking.bookingInterval(), it.getBookingInterval()));
 
@@ -120,11 +122,11 @@ public class BookingService {
                 user,
                 room,
                 booking.bookingInterval(),
-                BookingStatus.CONFIRMED,
+                CONFIRMED,
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
-        bookingAuditService.createBookingAudit(toBooking(bookingEntity), AuditAction.UPDATE);
+        auditService.auditBooking(UPDATE, booking.id());
         logger.info("Booking id = {} successfully updated", booking.id());
         return toBooking(bookingEntity);
     }
