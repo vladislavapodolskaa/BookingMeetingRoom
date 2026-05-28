@@ -1,11 +1,13 @@
+version: '3.8'
+
 services:
   postgres-db:
     image: postgres:latest
     container_name: booking-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
       POSTGRES_DB: MeetingRoom
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
     ports:
       - "5432:5432"
     volumes:

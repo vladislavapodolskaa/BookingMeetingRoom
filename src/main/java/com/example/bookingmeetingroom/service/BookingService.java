@@ -132,7 +132,7 @@ public class BookingService {
     }
 
     public List<Booking> getAllActualBookings() {
-        return bookingRepository.findAllByStatusAndBookingInterval_EndTimeAfter(CONFIRMED, LocalDateTime.now()).stream()
+        return bookingRepository.findAllByStatusAndBookingIntervalEndTimeAfter(BookingStatus.CONFIRMED, LocalDateTime.now()).stream()
                 .map(this::toBooking)
                 .toList();
     }
