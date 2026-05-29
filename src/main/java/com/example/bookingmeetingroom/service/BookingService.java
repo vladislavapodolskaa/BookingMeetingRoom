@@ -11,6 +11,9 @@ import com.example.bookingmeetingroom.repository.RoomRepository;
 import com.example.bookingmeetingroom.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -46,6 +49,7 @@ public class BookingService {
         if (bookingEntity.getStatus().equals(CANCELLED)) {
             throw new IllegalStateException("Can't cancel already cancelled booking id = " + id);
         }
+        checkRights(bookingEntity.getUser());
         bookingEntity.setStatus(CANCELLED);
         bookingRepository.save(bookingEntity);
         logger.info("Booking id = {} successfully cancelled", id);
@@ -57,7 +61,7 @@ public class BookingService {
 
         UserEntity user = userRepository.findById(booking.userId())
                 .orElseThrow(() -> new NoSuchElementException("User not exist by id = " + booking.userId()));
-
+        checkRights(user);
         RoomEntity room = roomRepository.findById(booking.roomId())
                 .orElseThrow(() -> new NoSuchElementException("Room not exist by id = " + booking.roomId()));
 
@@ -101,6 +105,7 @@ public class BookingService {
 
         UserEntity user = userRepository.findById(booking.userId())
                 .orElseThrow(() -> new NoSuchElementException("User not exist by id = " + booking.userId()));
+        checkRights(user);
 
         RoomEntity room = roomRepository.findById(booking.roomId())
                 .orElseThrow(() -> new NoSuchElementException("Room not exist by id = " + booking.roomId()));
@@ -162,5 +167,21 @@ public class BookingService {
         if (booking.topicOfMeeting() == null) {
             throw new IllegalArgumentException("Topic of meeting can't be null");
         }
+    }
+
+    private void checkRights(UserEntity userEntity) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
+
+        boolean isAdmin = authentication.getAuthorities()
+                .contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String currentUser = authentication.getName();
+
+        if (userEntity != null && !isAdmin && !userEntity.getLogin().equals(currentUser)) {
+            throw new AccessDeniedException("Access denied: You cannot modify or view another user's data");
+        }
+
     }
 }
