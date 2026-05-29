@@ -2,6 +2,8 @@ package com.example.bookingmeetingroom.service;
 
 
 import com.example.bookingmeetingroom.domain.Booking;
+import com.example.bookingmeetingroom.domain.BookingEvent;
+import com.example.bookingmeetingroom.domain.BookingStatus;
 import com.example.bookingmeetingroom.entity.BookingEntity;
 import com.example.bookingmeetingroom.entity.RoomEntity;
 import com.example.bookingmeetingroom.entity.UserEntity;
@@ -10,6 +12,7 @@ import com.example.bookingmeetingroom.repository.RoomRepository;
 import com.example.bookingmeetingroom.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,14 +30,14 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
-    private final AuditService auditService;
+    private final ApplicationEventPublisher eventPublisher;
     private final Logger logger = LoggerFactory.getLogger(BookingService.class);
 
-    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, RoomRepository roomRepository, AuditService auditService) {
+    public BookingService(BookingRepository bookingRepository, UserRepository userRepository, RoomRepository roomRepository, ApplicationEventPublisher eventPublisher) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
-        this.auditService = auditService;
+        this.eventPublisher = eventPublisher;
     }
 
     public Booking getBookingById(Long id) {
@@ -50,7 +53,7 @@ public class BookingService {
         }
         bookingEntity.setStatus(CANCELLED);
         bookingRepository.save(bookingEntity);
-        auditService.auditBooking(CANCEL, bookingEntity.getId());
+        eventPublisher.publishEvent(new BookingEvent(CANCEL, bookingEntity.getId()));
         logger.info("Booking id = {} successfully cancelled", id);
     }
 
@@ -80,7 +83,7 @@ public class BookingService {
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
-        auditService.auditBooking(CREATE, bookingEntity.getId());
+        eventPublisher.publishEvent(new BookingEvent(CREATE, bookingEntity.getId()));
         logger.info("Booking successfully created");
         return toBooking(bookingEntity);
     }
@@ -126,7 +129,7 @@ public class BookingService {
                 booking.topicOfMeeting()
         );
         bookingRepository.save(bookingEntity);
-        auditService.auditBooking(UPDATE, booking.id());
+        eventPublisher.publishEvent(new BookingEvent(UPDATE, bookingEntity.getId()));
         logger.info("Booking id = {} successfully updated", booking.id());
         return toBooking(bookingEntity);
     }
