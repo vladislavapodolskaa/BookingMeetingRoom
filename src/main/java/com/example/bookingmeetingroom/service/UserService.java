@@ -6,6 +6,9 @@ import com.example.bookingmeetingroom.entity.UserEntity;
 import com.example.bookingmeetingroom.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,17 +31,21 @@ public class UserService {
     }
 
     public List<UserResponse> getAllUsers() {
+        checkRights(null);
         return userRepository.findAll().stream().map(this::toUserResponse).toList();
     }
 
     public UserResponse getUserById(Long id) {
-        return toUserResponse(userRepository
+        UserEntity userEntity = userRepository
                 .findById(id)
-                .orElseThrow(() -> new NoSuchElementException("User not found by id = " + id)));
+                .orElseThrow(() -> new NoSuchElementException("User not found by id = " + id));
+        checkRights(userEntity);
+        return toUserResponse(userEntity);
     }
 
     public void deleteUserById(Long id) {
         UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found by id = " + id));
+        checkRights(userEntity);
         userEntity.setStatus(DELETED);
         userRepository.save(userEntity);
         logger.info("User with id = {} successfully deleted", id);
@@ -77,6 +84,7 @@ public class UserService {
             throw new IllegalArgumentException("Id can't be null");
         }
         UserEntity userEntity = userRepository.findById(user.id()).orElseThrow(() -> new NoSuchElementException("User not found by id = " + user.id()));
+        checkRights(userEntity);
 
         String login = userEntity.getLogin();
         String password = userEntity.getPassword();
@@ -139,5 +147,21 @@ public class UserService {
         if (!password.matches(".*[!@#$%^&*()_\\-+=:;.,?].*")) {
             throw new IllegalArgumentException("Password must contain at least one special character");
         }
+    }
+
+    private void checkRights(UserEntity userEntity) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
+
+        boolean isAdmin = authentication.getAuthorities()
+                .contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String currentUser = authentication.getName();
+
+        if (userEntity != null && !isAdmin && !userEntity.getLogin().equals(currentUser)) {
+            throw new AccessDeniedException("Access denied: You cannot modify or view another user's data");
+        }
+
     }
 }
