@@ -18,6 +18,7 @@ public class BookingEntity {
     private RoomEntity room;
     @Embedded
     private BookingInterval bookingInterval;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status;
     @Column(nullable = false)
