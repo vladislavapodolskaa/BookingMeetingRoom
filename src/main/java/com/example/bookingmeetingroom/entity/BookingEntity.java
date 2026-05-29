@@ -19,6 +19,7 @@ public class BookingEntity {
     @Embedded
     private BookingInterval bookingInterval;
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private BookingStatus status;
     @Column(nullable = false)
     private String topicOfMeeting;
