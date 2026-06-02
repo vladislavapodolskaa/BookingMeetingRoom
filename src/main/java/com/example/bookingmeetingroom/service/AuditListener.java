@@ -1,8 +1,7 @@
-package com.example.bookingmeetingroom.controller;
+package com.example.bookingmeetingroom.service;
 
 import com.example.bookingmeetingroom.domain.AuditAction;
 import com.example.bookingmeetingroom.domain.BookingEvent;
-import com.example.bookingmeetingroom.service.AuditService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
