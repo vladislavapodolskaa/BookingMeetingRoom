@@ -1,6 +1,7 @@
 package com.example.bookingmeetingroom.controller;
 
 import com.example.bookingmeetingroom.domain.User;
+import com.example.bookingmeetingroom.domain.UserResponse;
 import com.example.bookingmeetingroom.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,12 +22,12 @@ public class UserController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
@@ -37,14 +38,14 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping()
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> createUser(@RequestBody User user) {
         logger.info("Request to create user");
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
     }
 
     @PutMapping()
-    public ResponseEntity<User> updateUserById(@RequestBody User user) {
+    public ResponseEntity<UserResponse> updateUserById(@RequestBody User user) {
         logger.info("Request to update user with id = {}", user.id());
         return ResponseEntity.ok(userService.updateUserById(user));
     }

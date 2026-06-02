@@ -8,6 +8,8 @@ import com.example.bookingmeetingroom.entity.UserEntity;
 import com.example.bookingmeetingroom.repository.AuditRepository;
 import com.example.bookingmeetingroom.repository.BookingRepository;
 import com.example.bookingmeetingroom.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -48,8 +50,14 @@ public class AuditService {
     public void auditBooking(AuditAction action, long bookingId) {
         BookingEntity bookingEntity = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NoSuchElementException("Booking not found by id = " + bookingId));
-        UserEntity userEntity = userRepository.findById(bookingEntity.getUser().getId())
-                .orElseThrow(() -> new NoSuchElementException("User not found by id = " + bookingEntity.getUser().getId()));
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
+        String login = authentication.getName();
+
+        UserEntity userEntity = userRepository.findByLogin(login)
+                .orElseThrow(() -> new NoSuchElementException("User not found by login = " + login));
 
         AuditEntity auditEntity = new AuditEntity(
                 null,

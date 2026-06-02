@@ -9,5 +9,7 @@
     <include file="db/changelog/changesets/2026-05-25-create-rooms-table.xml"/>
     <include file="db/changelog/changesets/2026-05-25-create-bookings-table.xml"/>
     <include file="db/changelog/changesets/2026-05-26-create-audits-table.xml"/>
-
+    <include file="db/changelog/changesets/2026-05-28-change-audits-table.xml"/>
+    <include file="db/changelog/changesets/2026-05-28-add-login-user-table.xml"/>
+    <include file="db/changelog/changesets/2026-05-29-add-role-user-table.xml"/>
 </databaseChangeLog>

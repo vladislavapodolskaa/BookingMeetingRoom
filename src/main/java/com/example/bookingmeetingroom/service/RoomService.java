@@ -5,6 +5,9 @@ import com.example.bookingmeetingroom.entity.RoomEntity;
 import com.example.bookingmeetingroom.repository.RoomRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +32,7 @@ public class RoomService {
     }
 
     public void deleteRoomById(Long id) {
+        checkRights();
         if (roomRepository.notExistsById(id)) {
             throw new NoSuchElementException("Room not exist by id = " + id);
         }
@@ -37,6 +41,7 @@ public class RoomService {
     }
 
     public Room createRoom(Room room) {
+        checkRights();
         if (room.id() != null) {
             throw new IllegalArgumentException("Id should be null");
         }
@@ -52,6 +57,7 @@ public class RoomService {
     }
 
     public Room updateRoomById(Room room) {
+        checkRights();
         if (room.id() == null) {
             throw new IllegalArgumentException("Id can't be null");
         }
@@ -84,5 +90,18 @@ public class RoomService {
         if (room.capacity() <= 0) {
             throw new IllegalArgumentException("Room's capacity should be positive");
         }
+    }
+
+    private void checkRights() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
+        boolean isAdmin = authentication.getAuthorities()
+                .contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if (!isAdmin) {
+            throw new AccessDeniedException("Access denied: You cannot modify room's data");
+        }
+
     }
 }
