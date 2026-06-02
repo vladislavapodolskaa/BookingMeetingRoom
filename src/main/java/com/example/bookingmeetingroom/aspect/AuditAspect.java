@@ -1,6 +1,6 @@
 package com.example.bookingmeetingroom.aspect;
 
-import com.example.bookingmeetingroom.annotation.AuditAnnotation;
+import com.example.bookingmeetingroom.annotation.Audit;
 import com.example.bookingmeetingroom.domain.AuditAction;
 import com.example.bookingmeetingroom.domain.Booking;
 import com.example.bookingmeetingroom.service.AuditService;
@@ -19,13 +19,13 @@ public class AuditAspect {
         this.auditService = auditService;
     }
 
-    @Pointcut("@annotation(auditAnnotation)")
-    public void auditPointcut(AuditAnnotation auditAnnotation) {
+    @Pointcut("@annotation(audit)")
+    public void auditPointcut(Audit audit) {
     }
 
-    @AfterReturning(pointcut = "auditPointcut(auditAnnotation)", returning = "result", argNames = "joinPoint,auditAnnotation,result")
-    public void afterReturningAuditAnnotation(JoinPoint joinPoint, AuditAnnotation auditAnnotation, Object result) {
-        AuditAction auditAction = auditAnnotation.value();
+    @AfterReturning(pointcut = "auditPointcut(audit)", returning = "result", argNames = "joinPoint,auditAnnotation,result")
+    public void afterReturningAuditAnnotation(JoinPoint joinPoint, Audit audit, Object result) {
+        AuditAction auditAction = audit.value();
         Long entityId;
         if (result != null) {
             if (result instanceof Booking booking) {
