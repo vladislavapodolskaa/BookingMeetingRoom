@@ -1,7 +1,7 @@
 package com.example.bookingmeetingroom.service;
 
 
-import com.example.bookingmeetingroom.annotation.AuditAnnotation;
+import com.example.bookingmeetingroom.annotation.Audit;
 import com.example.bookingmeetingroom.domain.Booking;
 import com.example.bookingmeetingroom.entity.BookingEntity;
 import com.example.bookingmeetingroom.entity.RoomEntity;
@@ -43,7 +43,7 @@ public class BookingService {
                 .orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
     }
 
-    @AuditAnnotation(CANCEL)
+    @Audit(CANCEL)
     public void cancelBookingById(Long id) {
         BookingEntity bookingEntity = bookingRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Booking not exist by id = " + id));
         if (bookingEntity.getStatus().equals(CANCELLED)) {
@@ -55,7 +55,7 @@ public class BookingService {
         logger.info("Booking id = {} successfully cancelled", id);
     }
 
-    @AuditAnnotation(CREATE)
+    @Audit(CREATE)
     public Booking createBooking(Booking booking) {
         validateBooking(booking);
 
@@ -85,7 +85,7 @@ public class BookingService {
         return toBooking(bookingEntity);
     }
 
-    @AuditAnnotation(UPDATE)
+    @Audit(UPDATE)
     public Booking updateBookingById(Booking booking) {
         if (booking.id() == null) {
             throw new IllegalArgumentException("Id can't be null");
